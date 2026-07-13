@@ -1,0 +1,67 @@
+<?php
+
+declare(strict_types = 1);
+
+namespace Poppy\Framework\Foundation\Http;
+
+use Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse;
+use Illuminate\Foundation\Http\Kernel as HttpKernel;
+use Illuminate\Foundation\Http\Middleware\CheckForMaintenanceMode as IlluminateCheckForMaintenanceMode;
+use Illuminate\Foundation\Http\Middleware\TrimStrings as IlluminateTrimStrings;
+use Illuminate\Foundation\Http\Middleware\ValidatePostSize as IlluminateValidatePostSize;
+use Illuminate\Routing\Middleware\SubstituteBindings;
+use Illuminate\Routing\Middleware\ThrottleRequests;
+use Illuminate\Session\Middleware\StartSession;
+use Illuminate\View\Middleware\ShareErrorsFromSession;
+use Poppy\Framework\Http\Middlewares\EnableCrossRequest;
+use Poppy\Framework\Http\Middlewares\EncryptCookies;
+use Poppy\Framework\Http\Middlewares\VerifyCsrfToken;
+
+/**
+ * poppy http kernel
+ */
+class Kernel extends HttpKernel
+{
+
+    /**
+     * The application's global HTTP middleware stack.
+     * @var array
+     */
+    protected $middleware = [
+        IlluminateCheckForMaintenanceMode::class,
+        IlluminateValidatePostSize::class,
+        IlluminateTrimStrings::class,
+    ];
+
+    /**
+     * The application's route middleware.
+     * @var array
+     */
+    protected $routeMiddleware = [
+        // 'auth.basic' => \Illuminate\Auth\Middleware\AuthenticateWithBasicAuth::class,
+        'bindings'   => SubstituteBindings::class,
+        // 'can' => \Illuminate\Auth\Middleware\Authorize::class,
+        // 'guest' => \App\Http\Middleware\RedirectIfAuthenticated::class,
+        'throttle'   => ThrottleRequests::class,
+        'cross'      => EnableCrossRequest::class,
+        'csrf_token' => VerifyCsrfToken::class,
+    ];
+
+    /**
+     * The application's route middleware groups.
+     * @var array
+     */
+    protected $middlewareGroups = [
+        'web' => [
+            StartSession::class,
+            ShareErrorsFromSession::class,
+            SubstituteBindings::class,
+            EncryptCookies::class,
+            AddQueuedCookiesToResponse::class,
+        ],
+        'api' => [
+            'throttle:60,1',
+            'bindings',
+        ],
+    ];
+}
